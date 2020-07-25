@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hello world</title>
+</head>
+
+<body>
+    <h1>hello world</h1>
+    <!-- <script src="./index.js"></script> -->
+
+    <script src="./node_modules/systemjs/dist/system.js"></script>
+    <script>
+        (function () {
+            System.config({
+                packages: {
+                    '/': {
+                        defaultExtension: 'js' //设置根目录下的资源的默认后缀为js
+                    }
+                }
+            })
+        })()
+        System.import('index.js')
+    </script>
+
+</body>
+
+</html>
