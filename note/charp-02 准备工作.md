@@ -490,9 +490,49 @@ cnpm install systemjs --save
 
 ## ECMAScript模块
 
+尽管通用模块有着迷人的魅力，但（在不使用TypeScript的情况下）书写通用模块是一件极为烦琐的事，并且通用模块中的各种辅助对象和函数（比如exports和require()等）也使得其可读性急剧下降。
+为了弥补以上缺陷，ECMA国际组织在2015年将模块写入了ECMAScript 2015（简称ES 2015）中，从而使支持ES 2015的浏览器（或其他JavaScript运行环境）可以直接加载符合ES 2015规范的模块，即ECMAScript模块。
 
+从ECMAScript的第六个版本开始，其名称不再以版本序号命名。因此，ECMAScript的第六个版本的正式名称开始是ECMAScript 6（简称ES 6），但随后被更改为ECMAScript 2015（简称ES 2015）。以此类推，ECMAScript的第七个版本的正式名称是ECMAScript 2016（简称ES 2016），第八个版本的正式名称是ECMAScript 2017（简称ES 2017），第九个版本的正式名称是ECMAScript 2018（简称ES 2018）。
 
++ helloworld-es2015.js
 
+```js
+export function helloWorld() {
+    console.log('hello world-es2015');
+}
+```
+
++ index-es2015.js
+
+```js
+import { helloWorld } from './helloworld-es2015.js'
+helloWorld();
+```
+
+   它从上一个ES模块hello-world.es2015.js（代码中此处的扩展名.js不能省略）中导入了函数helloWorld
+
++ index-es2015.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hello world-es2015</title>
+</head>
+
+<body>
+    <h1>hello world</h1>
+    <script type="module" src="./index-es2015.js"></script>
+</body>
+
+</html>
+```
+
+但由于index-es2015.js是一个ES模块，由此我们将这对`<script>`标签的type特性的值设置成了module（模块）—— 这是ES 2015规范的要求。
 
 
 
