@@ -1,6 +1,0 @@
-{
-    "compilerOptions": { //编译选项
-        "sourceMap": true, //生成映射文件
-        "module": "commonjs" //指定生成的javascript的模块规范 commonjs,amd,umd
-    }
-}

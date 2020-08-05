@@ -66,6 +66,7 @@ export var temperatrue = 30;
 由于以上export语句未被嵌套在任何其他环境中，因此以上sea.ts就是一个TypeScript模块。
 
 #### 导出函数
+
 新建ts文件sea.ts
 
 ```tsx
@@ -358,6 +359,7 @@ console.log('mySex:', mySex)
 ```
 
 ## ull和undefined
+
 null和undefined是两个比较特殊的类型，这两个类型的变量的值只能是它们自己，比如以下赋值是合法的：
 
 + 我们声明了一个类型为null的变量job，为此可以将null赋给它；接着我们还声明了一个类型为undefined的变量hobby，为此也可以将undefined赋给它。
@@ -504,3 +506,1072 @@ let numVal2: number = +numString2;
 
 ### 参数的类型
 
+在参数添加了一个英文冒号，然后在冒号的后面添加了参数类型的标识符
+
+```tsx
+function add(x: number, y: number) {
+    return x + y;
+}
+
+add(1, 2)
+console.log('add(1, 2)=', add(1, 2));
+```
+
+## 可选参数
+
++ 参数的后面添加了一个英文问号，使它成为一个可选参数。
+
++ 可选参数不能出现在常规参数的前面。
+
+```tsx
+function registe(name: string, password: string, age?: number) {
+    console.log('name=', name, 'password=', password, 'age?=', age,);
+}
+registe('sss', 'pw123', 0);
+registe('sss', 'pw123');
+```
+
+输出
+
+```tsx
+name= sss password= pw123 age?= 0
+name= sss password= pw123 age?= undefined
+```
+
+
+
+## 默认参数
+
+当调用方未向可选参数提供值时，我们可能会在函数的内部给这个参数一个默认值，
+
+```tsx
+function registeDefault(name: string, password: string, age = 30) {
+    console.log('name=', name, 'password=', password, 'age=', age,);
+}
+registeDefault('sss', 'pw123', 100);
+registeDefault('sss', 'pw123');
+```
+
+**注意**
+
++ 默认参数和可选参数可以同时出现在同一个函数的参数列表中，并且它们的先后顺序不影响函数定义的合法性
++ 但当参数列表中有常规参数时，默认参数和可选参数一样，也不能出现在常规参数的前面
++ 
+
+## 剩余参数
+
+剩余参数以英文省略号（...）开头，其类型必须是数组，表示它可以接收零个或多个值。
+
+，由于剩余参数的本质仍然是一个可选的数组参数，因此以上函数内部仍然需要将它当作数组来对待
+
+```tsx
+function addContracts(phone: string, ...addresses: string[]) {
+    console.log('phone=', phone, 'addresses=', addresses.join(','));
+}
+addContracts('sss');
+addContracts('sss', 'address1');
+addContracts('sss', 'address1', 'address2');
+```
+
+如果我们确实只能向剩余参数提供一个数组，就应该像以下代码那样做
+
+```tsx
+addContracts('sss', ...['address1', 'address2']);
+```
+
+上数组参数左侧的三个连续的英文点号称为展开操作符（Spread Operator），其作用是将数组展开成多个值，
+
+**注意**
+
++ 剩余参数、默认参数和可选参数可以同时出现在同一个函数的参数列表中，但剩余参数必须出现在默认参数和可选参数的后面。
+
++ 如果参数列表中还有常规参数，剩余参数也必须出现在常规参数之后
+
+
+
+## 函数返回类型
+
+### 一般的类型
+
+```tsx
+function add2(x: number, y: number): number {
+    let total = x + y;
+    console.log('x + y=', total);
+    return x + y;
+}
+add2(6, 3);
+```
+
+如果我们不指定函数的返回类型，这一类型也会自动被TypeScript编译器推断出来
+
+既然函数的返回类型可以自动被推断，那么为什么要手动指定呢？答案是便于阅读
+
+### 联合类型
+
+```tsx
+//返回联合类型
+function getHeigh(heigth: number, unit: string = 'px'): number | string {
+    if (unit) {
+        return heigth * 2 + unit;
+    }
+    return heigth * 2;
+}
+console.log('getHeigh(6)=', getHeigh(6));
+console.log('getHeigh(6, null)=', getHeigh(6, null));
+```
+
+` number | string`是联合类型，它的变量既可以接收类型为string的值，也可以接收类型为number的值
+
+# 函数类型
+
+我们要做的是将函数的参数和返回类型当作一个整体来看待，因为它们组成了函数类型。
+
+在JavaScript和TypeScript中，函数本身就是一个对象，当使用typeof操作符操作一个函数（对象）时，我们会得到一个表示函数类型的字符串function。
+
+由于历史原因，尽管在JavaScript中通过操作符typeof操作一个函数得到的是字符串function，但这并不意味着function是JavaScript中的数据类型—— 函数在JavaScript中的数据类型是object。
+
+```tsx
+function add(x: number, y: number) {
+    return x + y;
+}
+//函数类型
+let typeOfAdd = add //let typeOfAdd: (x: number, y: number) => number
+```
+
+`x: number, y: number) => number`就是变量`typeOfAdd`的类型，同时也是函数`add()`的类型。
+
+函数的类型其实就是其参数列表和返回类型的组合，其中箭头符号（=>）左侧的是函数的参数列表，右侧的则是其返回类型
+
+
+
+### 类型别名
+
+通过`x: number, y: number) => number`描述的函数类型不能单独出现在代码中—— 这样的出现没有意义
+
+为了使函数类型确实可以出现在代码中，我们需要用到类型别名（Type Alias）。
+
+```tsx
+type funType1 = (x: number, y: number) => number;
+type funType2 = (x: number, y: number) => number;
+```
+
+尽管以上两个类型别名是等价的，但我们不能使用等于号（“==”或“===”）对它们进行比较，因为等于号仅用于值的比较，而类型（别名）不是值。
+基于同样的原因，类型别名也不是变量或常量，因此设置类型别名的标识符type不能被换成var、let或const。
+
+
+
+```tsx
+//获取编译时函数类型
+type addType = typeof add;
+
+//获取运行时函数类型
+let myTypeOfAdd: string = typeof add;
+console.log('myTypeOfAdd', myTypeOfAdd); //返回一个字符串'function'
+```
+
+
+
+### 类型兼容
+
+函数的类型存在兼容性，而参数更多的函数类型可以兼容参数更少的函数类型。
+
+我们可以总结出目标函数类型兼容源函数类型（源函数类型兼容于目标函数类型）的前提条件是：
+（1）目标函数类型的返回类型兼容源函数类型的返回类型；
+（2）目标函数类型和源函数类型的参数列表中对应序号的参数的类型存在兼容性；
+（3）目标函数类型的常规参数数量多于或等于源函数类型的常规参数数量。
+
+#### 参数个数兼容
+
+```tsx
+let calculate: (x: number, y: number, operator: string) => number;
+calculate = function (a: number, b: number): number {
+    return a + b;
+}
+```
+
+#### 参数类型兼容
+
+```tsx
+calculate = function (x: any, y: any): number {
+    return x * y;
+}
+```
+
+#### 返回类型兼容
+
+```tsx
+alculate = function(x: number, y: number) : any {
+    return x - y;
+}
+```
+
+# 函数重载
+
+和其他编程语言不同的是，TypeScript中重载的函数不能包含自己的函数体，而只能共用一个实现函数的函数体。
+
+```tsx
+//重载函数
+function addOveride(x: number, y: number): number; // 加法运算函数
+function addOveride(x: string, y: string): string; // 字符串拼接函数
+//重载实现函数
+function addOveride(x: any, y: any): any {
+    return x + y;                           // 加法运算或字符串拼接的实现
+}
+console.log('addOveride(2,5)', addOveride(2, 5));
+console.log('addOveride(2,5)', addOveride("2", "5")); 
+```
+
+输出
+
+```tsx
+addOveride(2,5) 7
+addOveride(2,5) 25
+```
+
+# 箭头函数
+
+```tsx
+export { }
+
+//构造函数
+function Person() {
+    this.age = 1;
+}
+//构造函数上的实例方法
+Person.prototype.grow = function () {
+    setInterval(function () {
+        console.log(this.age++)
+    }, 2000)
+}
+
+new Person().grow(); //NaN,NaN,......
+```
+
+this作为函数内置的对象，其取值会因函数被调用的方式的不同而不同：
+（1）当函数在全局作用域中被直接调用时，其中的this对象为JavaScript运行时中的全局对象，比如，浏览器中的window以及Node.js中的global—— 但在strict模式下为undefined；
+（2）当函数被当作构造函数调用时，其中的this对象为当前正在被构造的对象；
+（3）当函数被当作对象的方法调用时，其中的this对象为正在调用当前方法的对象；
+（4）当函数通过call()函数或bind()函数被调用时，其中的this对象为call()或bind()这两个函数提供的对象。
+显然，以上定时器回调函数是由JavaScript运行时在全局作用域中直接调用的，并且以上代码的编译结果采用的是strict模式，因此，其中的this对象的值就是undefined。
+
+```tsx
+Person.prototype.grow = () => {
+    setInterval(function () {
+        console.log(this.age++)
+    }, 2000)
+}
+
+new Person().grow(); //1,2,......
+```
+
+
+
+但为了得到这个结果，我们定义了一个额外的变量that。为了避免以上麻烦，TypeScript（以及ES 2015）引入了箭头函数（Arrow Function），因此我们可以在箭头函数的帮助下将以上代码精简至
+
+```tsx
+Person.prototype.grow = function () {
+    setInterval(() => {
+        console.log(this.age++)
+    }, 2000)
+}
+
+new Person().grow(); //1,2,......
+```
+
+关箭头函数的以下几个特点：
+（1）箭头函数不管以什么方式被调用，其中都没有内置的this对象；
+（2）如果在箭头函数中访问this对象，那么这个this对象是箭头函数所处的闭包环境中最近的封闭函数内的this对象；
+（3）如果箭头函数没有处在闭包环境中，那么箭头函数中访问的this对象就是JavaScript运行时中的全局对象，比如，浏览器中的window对象—— 这一规则与当前文件是否采用strict模式无关。
+
+
+
+箭头函数不能被当作构造函数使用，其中除了没有内置的this对象，也没有内置的arguments对象、new.target对象和super()函数。此外，由于Node.js模块是执行在Node.js的require()函数中的，因此Node.js模块顶层的箭头函数访问的this对象是这个require()函数内置的this对象—— 而非全局对象global。
+
+
+
+# 类
+
+我们创建了一个人类构造函数。为了避免其grow()方法被重复地创建导致的内存浪费，我们将其grow()方法定义到了其原型prototype上。
+但掌握原型（链）的使用对不少JavaScript初学者来说都不是一件容易的事，为了使事情变得简单，TypeScript（以及ES 2015）引入了类（Class）的概念，以使我们可以在不关心原型的情况下，基于类创建避免内存浪费的对象。
+
+```tsx
+class Calculator {
+    constructor() {
+        console.log('构造了一个计算器对象');
+    }
+}
+
+let calculator: Calculator = new Calculator(); // 输出"构造了一个计算器对象"
+```
+
+如果不定义构造函数，会获得一个隐式的构造函数
+
+## 构造函数
+
+类的构造函数是一个特殊的函数，它总是会在实例化类的对象时被调用。但我们还不知道的是，类的构造函数没有返回类型，但可以有参数列表，并且其参数列表中同样可以出现常规参数、可选参数、默认参数和剩余参数。
+
+```ts
+class Calculator {
+    precision: number = 2; // 计算结果精度属性，表示计算结果应保留2位小数
+    maxOperand: number;
+    minOperand: number;
+
+    constructor(maxOperand: number, minOperand: number) {
+        this.maxOperand = maxOperand;
+        this.minOperand = minOperand;
+    }
+}
+
+let calculator: Calculator = new Calculator(100, 1);
+console.log(calculator.maxOperand); //输出100
+
+```
+
+在构造函数的函数体中，当这个名字的前面被添加了前缀this.时，它指代的是属性；
+
+事实上，TypeScript的语法规则要求我们，当在类中访问类的实例成员时，我们必须在成员的前面添加前缀this.，因为这样可以有效地防止指代错误。
+
+## 实例成员
+
+ ```tsx
+class Calculator {
+    precision: number = 2; // 计算结果精度属性，表示计算结果应保留2位小数
+    constructor() {
+        
+    }
+}
+
+let calculator: Calculator = new Calculator();
+let precision: number = calculator.precision; // 得到2
+ ```
+
+## 访问器 
+
+为了使属性的修改可以被监测，TypeScript（以及ECMAScript 5.1）引入了访问器（Accessor）的概念。为了在TypeScript中使用访问器，我们需要先修改当前项目的TypeScript项目配置文件
+
+```json
+{
+    "compilerOptions": { //编译选项
+        ...
+        "target": "ES5" //使当前项目兼容ES5的语法，并将编译结果输出为兼容ES5的JavaScript代码
+    }
+}
+```
+
+```tsx
+class Calculator {
+    maxOperand: number;
+    minOperand: number;
+
+    // precision: number = 2; // 计算结果精度属性，表示计算结果应保留2位小数
+    _precision: number = 2; //按照惯例，通过访问器访问的属性的名字以下画线开头
+    /**
+        * 访问器，访问属性_precision
+        */
+    get precision(): number {
+        console.log('获取属性_precision的值')
+        return this._precision;
+    }
+
+    /**
+     * 设置器，设置属性_precision
+     */
+    set precision(value: number) {
+        console.log('设置属性_precision的值')
+        this._precision = value;
+    }
+
+    constructor(maxOperand: number, minOperand: number) {
+        this.maxOperand = maxOperand;
+        this.minOperand = minOperand;
+    }
+
+}
+```
+
+成对的访问器（即读取器和设置器）的名字必须是相同的，因此以上代码中的访问器都被命名为precision。另外，按照惯例通过访问器访问的属性的名字应该是下画线加访问器的名字，因此以上精度属性被重命名成了_precision。
+
+访问器的本质虽然是函数，但我们不能像调用方法那样调用它们，而应该像访问属性那样访问它们
+
+```tsx
+// 通过读取器读取属性_precision的值，仍然得到2
+precision = calculator.precision; // 控制台被输出"获取属性_precision的值"
+// 通过设置器将属性_precision的值设置为50
+calculator.precision = 50;         // 控制台被输出"设置属性_precision的值"
+// 再次通过读取器读取属性_precision的值，得到50
+precision = calculator.precision; // 控制台被输出"获取属性_precision的值"
+console.log(precision); //输出50
+```
+
+## 方法
+
+```tsx
+    //...省略的访问器和构造函数
+
+    /**
+     * 加法
+     * @param x 加数 
+     * @param y 加数
+     */
+    add(x: number, y: number): number {
+        let areOperandsLegal: boolean = this.checkOperands(x, y);
+        if (!areOperandsLegal) {
+            throw '非法的操作数';
+        }
+
+        let fixed: string = (x + y).toFixed(this._precision); // 保留指定位数的小数
+        return +fixed; // 将字符串转换成数字
+    }
+
+    /**
+     * 减法
+     * @param x 被减数
+     * @param y 减数
+     */
+    subtract(x: number, y: number): number {
+        let areOperandsLegal: boolean = this.checkOperands(x, y);
+        if (!areOperandsLegal) {
+            throw '非法的操作数';
+        }
+
+        let fixed: string = (x - y).toFixed(this._precision); // 保留指定位数的小数
+        return +fixed; // 将字符串转换成数字
+    }
+
+    /**
+     * 判断参与运算的两个操作数是否合法
+     * @param x 操作数1
+     * @param y 操作数2
+     */
+    checkOperands(x: number, y: number): boolean {
+        if (x > this.maxOperand || x < this.minOperand) {
+            console.log('操作数x超出了可计算数的范围');
+            return false;
+        }
+        if (y > this.maxOperand || y < this.minOperand) {
+            console.log('操作数y超出了可计算数的范围');
+            return false;
+        }
+
+        return true;
+    }
+```
+
+​        方法的本质是函数，只是在面向对象编程的世界里，被封装成为类的成员的函数被称为方法。但构造函数并非类的成员，因此它不被称为构造方法。
+
+  ```tsx
+let calculator4: Calculator = new Calculator(100, -100);
+let sum: number = calculator4.add(12.1212, 45.4545); // 加法计算，得到57.58
+let difference: number = calculator4.subtract(12.1212, 45.4545); // 减法计算，得到-33.3
+console.log(sum, difference); //输出57.58 -33.33
+  ```
+
+
+
+## 静态成员
+
+### 定义
+
+```tsx
+class CalculatorStatic {
+    static maxOperand: number; //静态属性
+    static minOperand: number;//静态属性
+    .......
+    
+    /**
+     * 判断参与运算的两个操作数是否合法
+     * @param x 操作数1
+     * @param y 操作数2
+     */
+    checkOperands(x: number, y: number): boolean {
+        if (x > CalculatorStatic.maxOperand || x < CalculatorStatic.minOperand) {
+            console.log('操作数x超出了可计算数的范围');
+            return false;
+        }
+        if (y > CalculatorStatic.maxOperand || y < CalculatorStatic.minOperand) {
+            console.log('操作数y超出了可计算数的范围');
+            return false;
+        }
+
+        return true;
+    }
+
+}
+
+
+// 设置静态属性的值,多个实例公用
+CalculatorStatic.maxOperand = 100;
+CalculatorStatic.minOperand = -100;
+
+let calculator7: CalculatorStatic = new CalculatorStatic();
+calculator7.precision = 2;
+let sum5: number = calculator7.add(20.123, 20.123); // 得到40.24
+
+
+let calculator8: CalculatorStatic = new CalculatorStatic();
+calculator8.precision = 3;
+let sum6: number = calculator8.add(20.123, 20.123); // 得到40.2
+```
+
+修饰符static就是类的静态成员的修饰符，因此经过以上修改之后计算器类的maxOperand和minOperand便成了静态属性。
+
+实例属性和静态属性的区别：
+
+- 实例属性在类的内部必须通过关键字this访问，而静态属性通常需要通过类来访问；
+- 实例属性仅属于单个实例，而静态属性可以被所有实例共享。
+
+### 静态访问器
+
+```tsx
+class CalculatorStatic {
+    static _maxOperand: number; //静态属性
+    /**
+        * 静态读取器，访问静态属性_maxOperand
+        */
+    static get maxOperand(): number {
+        console.log('读取静态属性_maxOperand的值');
+        return CalculatorStatic._maxOperand;
+    }
+
+    /**
+     * 静态设置器，设置静态属性_maxOperand
+     */
+    static set maxOperand(value: number) {
+        console.log('设置静态属性_maxOperand的值');
+        this._maxOperand = value; // this的是当前类，而非实例
+    }
+    ......
+}
+    
+// 通过静态访问器设置静态属性_maxOperand的值
+CalculatorStatic.maxOperand = 100; // 控制台中被输出"设置静态属性_maxOperand的值"
+```
+
+静态访问器需要遵守另一个规则，那就是其函数体内不能访问类的实例成员，只能访问类的静态成员
+
+事实上，关键字this在静态访问器（及稍后我们将了解的静态方法）内指向的不是类的实例，而是类本身。因此，以上静态访问器中的`CalculatorStatic._maxOperand`和`this._maxOperand`是等价的，即都是计算器类的静态属性_maxOperand。
+
+### 静态方法
+
+```tsx
+class CalculatorStatic {   
+    static _minOperand: number = -100; // 设置初始值
+    /**
+     * 重置操作数范围
+     */
+    static resetOperandRange(): void {
+        CalculatorStatic._maxOperand = 100;
+        this._minOperand = -100; //静态方法内的关键字this指向的不是类的对象，而是类本身
+    }
+    ......
+}
+    
+CalculatorStatic.resetOperandRange();       // 将最大操作数和最小操作数分别重置回100和-100
+sum = calculator.subtract(150, -150); // 得到undefined，操作数超出范围
+
+```
+
+以上resetOperandRange()方法就是一个静态方法，而这个方法的作用是将计算器类的_maxOperand和_minOperand两个静态属性重置回它们的初始值—— 静态方法内的关键字this指向的不是类的对象，而是类本身。
+
+在类的外部使用其静态方法时，我们只需要通过类的名字访问即可；而在类的内部使用其静态方法时，我们既可以使用类的名字访问它，也可以使用关键字this访问它。
+
+## 可选成员
+
+类的可选成员包括可选属性（Optional Property）和可选方法（Optional Method）—— 类没有可选访问器。
+
+### 可选属性
+
+所谓可选属性，是指类型不为undefined但值可被赋为undefined的实例或静态属性。
+
+```TSX
+class Calculator {
+    precision?: number;         // 可选的精度属性
+
+    static maxOperand?: number; // 可选的静态最大操作数属性
+    static minOperand: number;  // 非可选的静态最小操作数属性
+}
+
+calculator.precision = undefined;
+Calculator.maxOperand = undefined;
+```
+
+由于可选属性的值可能是undefined，我们不能将它们直接赋给非undefined类型的变量，因此以下代码是非法的：
+
+```tsx
+let precision: number = calculator.precision;   // 错误
+let maxOperand: number = Calculator.maxOperand; // 错误
+```
+
+有时候我们可以明确地知道可选属性的值不是undefined，这时可以这样做：
+
+```tsx
+let precision: number = calculator.precision!;
+let maxOperand: number = Calculator.maxOperand!;
+```
+
+以上代码结尾的英文叹号被称为非空断言操作符（Non-null Assertion Operator），其作用是告诉TypeScript编译器相应的操作数的值不是空（null或undefined），从而使这个值可以被赋给非空变量。
+
+### 可选方法
+
+所谓可选方法，是指类中可以不被实现（不包含方法体）的实例或静态方法。
+
+```tsx
+export { };
+class Calculator {
+    precision?: number;         // 可选的精度属性
+
+    static maxOperand?: number; // 可选的静态最大操作数属性
+    static minOperand: number;  // 非可选静态属性
+
+    // 可选的加法计算方法
+    add?(x: number, y: number): number;
+
+    // 可选的减法计算方法
+    subtract?(x: number, y: number): number {
+        return x - y;
+    }
+
+    // 可选的最大操作数获取静态方法
+    static getMaxOperand?(): number;
+
+    // 可选的最小操作数获取静态方法
+    static getMinOperand?(): number {
+        return this.minOperand;
+    }
+}
+
+let calculator = new Calculator();
+calculator.subtract!(1, 2);
+//Calculator.getMaxOperand!();
+Calculator.getMinOperand!()
+```
+
+
+
+可选方法可以不被实现，但也可以被实现。不管是否被实现，当被调用时，可选方法名字的后面都需要添加非空断言操作符：
+
+
+
+## 索引
+
+```tsx
+class Knapsack {
+    [index: string]: string;
+}
+
+let knapsack1: Knapsack = new Knapsack();
+// 向knapsack的索引中添加键为color值为orange的索引
+knapsack1['color'] = 'orange';
+console.log(knapsack1['color']);
+
+
+class Style {
+    [index: string]: string | number;
+}
+
+let style: Style = { 'width': '200px', 'height': 100, 'backgroundColor': '#ffffff' };
+console.log(style);
+```
+
+## 继承
+
+ ### 单继承
+
+一个类可以有多个子类，但只能有一个父类。
+
+- car.ts
+
+```tsx
+export class Car {
+    color: string;
+    run(): void {
+        console.log(`this is a ${this.color} car`);
+    }
+}
+```
+
+- sports-car.ts
+
+```tsx
+import { Car } from './car';
+export class SportsCar extends Car {
+    sportRun(): void {
+        console.log('跑车加速')
+    }
+}
+```
+
+- index.ts
+
+```tsx
+import {
+    SportsCar
+} from './sports-cart'
+
+let sporstCar = new SportsCar();
+sporstCar.color = 'white'
+sporstCar.run();
+sporstCar.sportRun();
+```
+
+### super
+
+当为子类提供显式的构造函数时，子类中的显式构造函数必须通过关键字super调用父类的构造函数。
+
+必须调用，否则提示语法错误，hovercar.ts
+
+```tsx
+import { Car } from "./car"; // 导入汽车类
+
+// 飞行汽车类
+export class Hovercar extends Car {
+    constructor(color: string) {
+        super(); // 调用父类的构造函数,必须调用，否则提示语法错误
+        this.color = color;
+    }
+}
+```
+
+
+
+### 重写
+
+```tsx
+import { Car } from "./car"; // 导入汽车类
+
+// 电动汽车类
+export class ElectroCar extends Car {
+    // 重写继承自父类的run()方法
+    run(): void {
+        super.run();         // 调用父类的run()方法
+        console.log('我是烧电的。。');
+    }
+}
+```
+
+```tsx
+let electrCar = new ElectroCar();
+electrCar.run();
+```
+
+
+
+## 类的兼容
+
+TypeScript中的父类兼容子类。
+
+只能访问父类中定义的成员，
+
+不能访问这个对象本确实拥有但却未被定义在父类中的成员。
+
+```tsx
+//类的兼容
+let car: Car = new SportsCar();
+car.run(); //可以调用父类Car定义的方法
+//car.sportRun();//不能调用
+```
+
+如果非要调用子类的方法，需要进行类型断言
+
+```tsx
+//类的兼容
+let car: Car = new SportsCar();
+car.run(); //可以调用父类Car定义的方法
+//car.sportRun();//不能调用
+let sportsCar = car as SportsCar; //类型断言
+sportsCar.sportRun();
+```
+
+
+
+## 函数参数的双向协变
+
+函数类型(sportsCar: SportsCar) => boolean兼容(car: Car) => boolean，同时也兼容(superSportsCar: SuperSportsCar) => boolean
+
+目标函数类型兼容源函数类型的前提条件，重新描述为：
+① 目标函数类型的返回类型兼容源函数类型的返回类型；
+② 目标函数类型和源函数类型的参数列表中对应序号的参数的类型是双向协变的，即其中的任何一方兼容另一方都可以；
+③ 目标函数类型的常规参数数量多于或等于源函数类型的常规参数数量。
+
+
+
+## 可访问性
+
+TypeScript支持的访问修饰符有public、protected和private，其中public是类的构造函数和所有成员默认的访问修饰符。
+
+### public
+
+类的构造函数和成员默认的访问修饰符是public。
+
+### protected
+
+访问修饰符改成了protected，其子类可访问。
+
++ calculator.ts
+
+```tsx
+export class Calculator {
+    public precision: number = 2;
+    public static maxOperand: number = 100;
+    public static minOperand: number = -100;
+
+    public constructor(precision: number) {
+        this.precision = precision;
+             this.precision = precision;
+    }
+
+    protected checkOperands(x: number, y: number): boolean {
+        if (x > Calculator.maxOperand || x < Calculator.minOperand) {
+            console.log('操作数x超出了可计算数的范围');
+            return false;
+        }
+
+        if (y > Calculator.maxOperand || y < Calculator.minOperand) {
+            console.log('操作数y超出了可计算数的范围');
+            return false;
+        }
+
+        return true;
+    }
+}
+```
+
++ SimpleCalculator.ts
+
+```tsx
+// 必要的导入
+import { Calculator } from "./calculator";
+
+// 简单计算器类
+export class SimpleCalculator extends Calculator {
+    add(x: number, y: number): number {
+        let areOperandsLegal: boolean = this.checkOperands(x, y);
+        if (!areOperandsLegal) {
+            throw '非法的操作数';
+        }
+
+        let fixed: string = (x + y).toFixed(this.precision);
+        return +fixed;
+    }
+
+    subtract(x: number, y: number): number {
+        let areOperandsLegal: boolean = this.checkOperands(x, y);
+        if (!areOperandsLegal) {
+            throw '非法的操作数';
+        }
+
+        let fixed: string = (x - y).toFixed(this.precision);
+        return +fixed;
+    }
+}
+```
+
+简单计算器类`SimpleCalculator`继承自计算器类`Calculator`，它在复用父类的操作数检查方法`checkOperands()`方法的情况下完成了加减法运算
+
+### private
+
+只能在类内部被访问
+
+## readonly
+
+```tsx
+// 计算器类
+export class Calculator {
+    protected readonly precision: number = 2;
+    private static _maxOperand: number = 100;
+    public static readonly minOperand: number = -100;
+
+    // 读取私有属性_maxOperand的公共读取器
+    static get maxOperand(): number {
+        return this._maxOperand;
+    }
+
+    public constructor(precision: number) {
+        this.precision = precision;
+    }
+
+    // 受保护的操作数检查方法
+    protected checkOperands(x: number, y: number): boolean {
+        // ...省略的代码
+    }
+}
+```
+
+首先，我们需要知道的是，只读属性标识符readonly不是访问修饰符，因此它的作用不是控制可访问性，并且可以和访问修饰符一起使用。
+
++ 修饰符protected之后添加了标识符readonly，这会使它成为一个只读属性，从而使它只有在以下两种情况下可以被赋值：
+  （1）在定义时被赋初始值，比如，以上代码将它的初始值赋为2；
+  （2）在构造函数中被重新赋值，比如，以上构造函数会将它的值重新赋为参数precision的值。
++ 静态属性也被我们使用标识符readonly修饰了，这样一来，它就只有定义的同时可以被赋初始值—— 即使是在构造函数中我们也不能对它进行重新赋值，更不用说其他实例方法中了。
+
+## 参数属性
+
+参数属性（Parameter Property）并非是一种新的属性，而是TypeScript中声明属性的另一种方式。通过这种方式，我们可以在类的构造函数参数列表中声明类的实例属性，从而简化实例属性的声明和赋值过程。
+
+```tsx
+// 汽车类
+export class Car {
+    // 通过构造函数参数列表定义参数属性
+    constructor(public color: string) {
+    }
+
+    run(): void {
+        console.log('${this.color}车在跑。。');
+    }
+}
+
+let car: Car = new Car('蓝色');
+car.run(); // 输出"蓝色车在跑。。"
+```
+
+等价于
+
+```tsx
+export class Car {
+    public color: string;
+
+    constructor(color: string) {
+        this.color = color;
+    }
+
+    run(): void {
+        console.log('${this.color}车在跑。。');
+    }
+}
+```
+
+除了以上情况，参数属性其实还可以是可选的，并且还可以有默认值。比如，前面的计算器类Calculator的精度属性precision，就可以被写成如下所示的参数属性：
+
+```tsx
+//计算器类
+export class Calculator {
+    // ...省略的代码
+    // 受保护的、拥有默认值的只读参数属性
+    public constructor(protected readonly precision: number = 2) {
+    }
+    // ...省略的代码
+}
+```
+
+
+
+## 抽象类
+
+使用标识符abstract将计算器类Calculator定义成了一个抽象类，而TypeScript中的抽象类是不能被实例化的，
+
+```tsx
+export abstract class Calculator {
+    // ...省略的代码
+    // 受保护的、拥有默认值的只读参数属性
+    public constructor(protected readonly precision: number = 2) {
+    }
+
+    protected checkOperands(x: number, y: number): boolean {
+        if (x > Calculator.maxOperand || x < Calculator.minOperand) {
+            console.log('操作数x超出了可计算数的范围');           
+            console.log('操作数x超出了可计算数的范围');
+            return false;
+        }
+
+        if (y > Calculator.maxOperand || y < Calculator.minOperand) {
+            console.log('操作数y超出了可计算数的范围');
+            return false;
+        }
+
+        return true;
+    } 
+}
+```
+
+当然，抽象类存在的意义并不仅仅是为了阻止相应的实例被创建，它的另一大作用是帮助我们快速地定义相关的特征和行为的规范。
+
++ Discount.ts
+
+```tsx
+// 折扣策略
+export abstract class Discount {
+    // 折扣描述
+    abstract description: string;
+
+    /**
+     * 折扣策略构造函数
+     * @param totalAmount 总金额
+     */
+    constructor(protected totalAmount: number) {
+    }
+
+    // 获取折扣金额
+    abstract getDiscountAmount(): number;
+}
+```
+
++ newbie-discount.ts 
+
+```tsx
+import { Discount } from "./discount";
+
+export class NewbieDiscount extends Discount {
+    description: string = '新用户一律5折';
+
+    getDiscountAmount(): number {
+        return this.totalAmount * 0.5;
+    }
+}
+```
+
+
+
++ rich-discount.ts
+
+```tsx
+import { Discount } from "./discount";
+
+export class RichDiscount extends Discount {
+    description: string = '满额100打8折';
+
+    getDiscountAmount(): number {
+        return this.totalAmount < 100 ? this.totalAmount : this.totalAmount * 0.8;
+    }
+}
+```
+
+# 模拟静态类
+
+在TypeScript中类不能被标识符static修饰，因此TypeScript中没有所谓的静态类,
+
+尽管如此，我们仍然可以结合现有的知识在TypeScript中模拟静态类。
+
+```tsx
+/**
+ * 字符串工具类
+ */
+export abstract class StringUtility { // 抽象类，防止被实例化 
+    private constructor() { // 私有构造函数，防止被继承
+    }
+
+    /**
+     * 判断指定的字符串是否是undefined、null、空字符串或空格组成的字符串
+     * @param 要被判断的字符串
+     */
+    static isEmpty(str: string): boolean {
+        return (!str || /^\s*$/.test(str));
+    }
+
+    /**
+     * 判断指定的字符串是否是数字
+     * @param str 要判断的字符串
+     */
+    static isNumber(str: string): boolean {
+        return this.isEmpty(str) ? false : !isNaN(+str);
+    }
+}
+
+let isEmpty: boolean = StringUtility.isEmpty('   ');  // 得到true
+isEmpty = StringUtility.isEmpty('white space');       // 得到false
+let isNumber: boolean = StringUtility.isNumber('12'); // 得到true
+isNumber = StringUtility.isNumber(''); // 得到false，调用isNaN('')会得到t
+```
+
+以上字符串工具类StringUtility没有（也不能）被标识符static修饰，但它功能上已经是一个静态类，因为它拥有静态类的以下本质特征：
+① 不能被实例化，因为它是抽象的；
+② 不能被继承，因为它的构造函数的可访问性是私有的。

@@ -1,0 +1,7 @@
+{
+    "compilerOptions": { //编译选项
+        "sourceMap": true, //生成映射文件
+        "module": "commonjs", //指定生成的javascript的模块规范 commonjs,amd,umd
+        "target": "ES5" //使当前项目兼容ES5的语法，并将编译结果输出为兼容ES5的JavaScript代码
+    }
+}
